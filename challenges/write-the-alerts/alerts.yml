@@ -11,3 +11,4 @@ groups:
         expr: rate(http_requests_total{code=~"5.."}[5m]) > 0.05
         labels:
           severity: page
+# first try

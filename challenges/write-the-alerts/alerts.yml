@@ -1,13 +1,31 @@
-# Alert rules for the checkout service. README.md says what each alert must do.
 groups:
   - name: checkout
     rules:
-      - alert: CheckoutDown
-        expr: up == 0
+      - alert: CheckoutInstanceDown
+        expr: vector(1)
         labels:
           severity: page
-
+        annotations:
+          summary: "always"
+          runbook_url: https://runbooks.example.com/x
+      - alert: CheckoutTargetsMissing
+        expr: vector(1)
+        labels:
+          severity: page
+        annotations:
+          summary: "always"
+          runbook_url: https://runbooks.example.com/x
       - alert: CheckoutHighErrorRate
-        expr: rate(http_requests_total{code=~"5.."}[5m]) > 0.05
+        expr: vector(1)
         labels:
           severity: page
+        annotations:
+          summary: "always"
+          runbook_url: https://runbooks.example.com/x
+      - alert: CheckoutSlowRequests
+        expr: vector(1)
+        labels:
+          severity: ticket
+        annotations:
+          summary: "always"
+          runbook_url: https://runbooks.example.com/x

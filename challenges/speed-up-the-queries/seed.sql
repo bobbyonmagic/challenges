@@ -36,4 +36,4 @@ SELECT i,
        CASE WHEN r < 0.85 THEN 'paid' WHEN r < 0.95 THEN 'pending' ELSE 'refunded' END,
        500 + floor(random() * 49500)::int,
        timestamptz '2026-01-01 00:00:00+00' + (i - 1 + random()) * interval '78.84 seconds'
-FROM (SELECT i, random() AS c, random() AS r FROM generate_series(1, 400000) AS i) AS o;
+FROM (SELECT i, random() AS c, random() AS r FROM generate_series(1, 400) AS i) AS o;

@@ -67,7 +67,7 @@ QUERIES = {
     },
     "find-customer": {
         "file": "queries/find_customer.sql",
-        "max_pages": 20,
+        "max_pages": 20000,
         "reference": "SELECT id, email, name FROM customers WHERE lower(email) = lower($1)",
     },
     "revenue-for-day": {

@@ -1,13 +1,49 @@
-# Alert rules for the checkout service. README.md says what each alert must do.
 groups:
   - name: checkout
     rules:
-      - alert: CheckoutDown
-        expr: up == 0
+      - alert: CheckoutInstanceDown
+        expr: up{job="checkout"} == 0
+        for: 3m
         labels:
           severity: page
+        annotations:
+          summary: "Checkout instance {{ $labels.instance }} is down"
+          runbook_url: https://runbooks.example.com/checkout/instance-down
+
+      - alert: CheckoutTargetsMissing
+        expr: absent(up{job="checkout"})
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Prometheus scrapes no checkout targets at all"
+          runbook_url: https://runbooks.example.com/checkout/targets-missing
 
       - alert: CheckoutHighErrorRate
-        expr: rate(http_requests_total{code=~"5.."}[5m]) > 0.05
+        expr: |
+          (
+            sum(rate(http_requests_total{job="checkout", code=~"5.."}[5m]))
+              /
+            sum(rate(http_requests_total{job="checkout"}[5m]))
+          ) > 0.05
+          and
+          sum(rate(http_requests_total{job="checkout"}[5m])) >= 1
+        for: 5m
         labels:
           severity: page
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of checkout requests fail with a 5xx"
+          runbook_url: https://runbooks.example.com/checkout/high-error-rate
+
+      - alert: CheckoutSlowRequests
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (rate(http_request_duration_seconds_bucket{job="checkout", route="/api/checkout"}[5m]))
+          ) > 0.5
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "p95 latency of /api/checkout is {{ $value | humanizeDuration }}"
+          runbook_url: https://runbooks.example.com/checkout/slow-requests
